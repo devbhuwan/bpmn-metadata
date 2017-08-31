@@ -1,6 +1,7 @@
 package io.github.devbhuwan.bpm.metadata.core.annotations.processors;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Throwables;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.JavaSourceFileHelper;
@@ -16,6 +17,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -26,7 +28,6 @@ import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.
 import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.MetadataSpecHelper.*;
 
 /**
- *
  * @author Bhuwan Prasad Upadhyay
  */
 @SupportedAnnotationTypes("io.github.devbhuwan.bpm.metadata.core.annotations.EnableBpmnMetadataConstantGenerator")
@@ -49,9 +50,7 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        System.out.printf("EnableBpmnMetadataConstantGeneratorProcessor->Processing....START\n");
         this.processImpl(annotations, roundEnv);
-        System.out.printf("EnableBpmnMetadataConstantGeneratorProcessor->Processing....END\n");
         return true;
     }
 
@@ -61,11 +60,13 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
             if (iterator.hasNext()) {
                 Element rootElement = iterator.next();
                 final String packageName = buildPackageName(rootElement);
-                for (Resource resource : resourcePatternResolver.getResources("classpath*:**/*.bpmn"))
+                for (Resource resource : resourcePatternResolver.getResources(JavaSourceFileHelper.getDefaultLocation()))
                     this.generateMetadataConstantSourceFile(packageName, resource);
             }
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+        } catch (Exception ex) {
+            processingEnv.getMessager()
+                    .printMessage(Diagnostic.Kind.ERROR,
+                            ex.getMessage() + "\n\n" + Throwables.getStackTraceAsString(ex));
         }
     }
 
@@ -91,8 +92,10 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
             classSpec.addType(variableKeysClassSpec.build());
             JavaFile javaFile = builder(packageName, classSpec.build()).build();
             javaFile.writeTo(new File(JavaSourceFileHelper.getDefaultPath()));
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+        } catch (IOException ex) {
+            processingEnv.getMessager()
+                    .printMessage(Diagnostic.Kind.ERROR,
+                            ex.getMessage() + "\n\n" + Throwables.getStackTraceAsString(ex));
         }
     }
 

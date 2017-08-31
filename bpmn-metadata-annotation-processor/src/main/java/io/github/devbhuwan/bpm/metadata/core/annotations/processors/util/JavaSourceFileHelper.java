@@ -7,7 +7,6 @@ import org.springframework.util.StringUtils;
 import javax.lang.model.element.Element;
 
 /**
- *
  * @author Bhuwan Prasad Upadhyay
  */
 public class JavaSourceFileHelper {
@@ -44,6 +43,14 @@ public class JavaSourceFileHelper {
     }
 
     public static String getDefaultPath() {
-        return TEST_MODE.equals(System.getProperty(BPMN_METADATA_ANNOTATION_MODE)) ? "build" : "";
+        return isTestMode() ? "build" : "";
+    }
+
+    private static boolean isTestMode() {
+        return TEST_MODE.equals(System.getProperty(BPMN_METADATA_ANNOTATION_MODE));
+    }
+
+    public static String getDefaultLocation() {
+        return isTestMode() ? "classpath*:**/*.bpmn" : "file:./src/main/**/*.bpmn";
     }
 }
