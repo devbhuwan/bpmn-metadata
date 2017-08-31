@@ -18,8 +18,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import java.io.File;
-import java.io.IOException;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import java.io.Writer;
 import java.util.*;
 
 import static com.squareup.javapoet.JavaFile.builder;
@@ -51,7 +52,7 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         this.processImpl(annotations, roundEnv);
-        return true;
+        return false;
     }
 
     private void processImpl(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -91,8 +92,11 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
             classSpec.addType(idsClassSpec.build());
             classSpec.addType(variableKeysClassSpec.build());
             JavaFile javaFile = builder(packageName, classSpec.build()).build();
-            javaFile.writeTo(new File(JavaSourceFileHelper.getDefaultPath()));
-        } catch (IOException ex) {
+            FileObject fileObject = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", javaFile.toJavaFileObject().getName());
+            Writer writer = fileObject.openWriter();
+            writer.write(javaFile.toString());
+            writer.close();
+        } catch (Exception ex) {
             processingEnv.getMessager()
                     .printMessage(Diagnostic.Kind.ERROR,
                             ex.getMessage() + "\n\n" + Throwables.getStackTraceAsString(ex));

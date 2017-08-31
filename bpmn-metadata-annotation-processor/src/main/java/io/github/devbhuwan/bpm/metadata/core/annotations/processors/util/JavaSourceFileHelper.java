@@ -42,10 +42,6 @@ public class JavaSourceFileHelper {
         return javaFileName.toString();
     }
 
-    public static String getDefaultPath() {
-        return isTestMode() ? "build" : "";
-    }
-
     private static boolean isTestMode() {
         return TEST_MODE.equals(System.getProperty(BPMN_METADATA_ANNOTATION_MODE));
     }
