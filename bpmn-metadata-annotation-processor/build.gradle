@@ -1,7 +1,10 @@
 dependencies {
     compile([
             "$appLibs.autoService",
-            project(":bpmn-metadata-core")
+            "$appLibs.javapoet",
+            project(":bpmn-metadata-core"),
+            "org.springframework:spring-core",
+            "commons-logging:commons-logging"
     ])
     testCompile([
             "$appLibs.annotationProcessorTestingJunit4"

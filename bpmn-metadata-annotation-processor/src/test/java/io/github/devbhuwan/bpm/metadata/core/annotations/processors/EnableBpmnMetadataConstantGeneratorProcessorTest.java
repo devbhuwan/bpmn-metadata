@@ -14,7 +14,7 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 public class EnableBpmnMetadataConstantGeneratorProcessorTest {
 
     @Test
-    public void name() {
+    public void givenSourceFile_EnableBpmnMetadataConstantGenerator_thenCompileAndGenerateBpmnMetadataConstants() {
         Truth.assert_().about(javaSource())
                 .that(JavaFileObjects.forResource("sources/GeneratorExample.java"))
                 .processedWith(new EnableBpmnMetadataConstantGeneratorProcessor())
