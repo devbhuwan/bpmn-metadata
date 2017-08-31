@@ -1,1 +1,4 @@
 rootProject.name = 'bpmn-metadata'
+include 'bpmn-metadata-core'
+include 'bpmn-metadata-annotation-processor'
+
