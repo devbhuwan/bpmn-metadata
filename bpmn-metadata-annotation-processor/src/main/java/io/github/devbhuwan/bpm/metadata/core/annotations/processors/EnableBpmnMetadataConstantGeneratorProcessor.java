@@ -3,15 +3,13 @@ package io.github.devbhuwan.bpm.metadata.core.annotations.processors;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
+import io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.JavaSourceFileHelper;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.Event;
-import org.camunda.bpm.model.bpmn.instance.FlowNode;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
-import org.camunda.bpm.model.bpmn.instance.Task;
+import org.camunda.bpm.model.bpmn.instance.*;
+import org.camunda.bpm.model.bpmn.instance.Process;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.util.Assert;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -23,6 +21,8 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.squareup.javapoet.JavaFile.builder;
+import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.JavaSourceFileHelper.buildClassName;
+import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.JavaSourceFileHelper.buildPackageName;
 import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.MetadataSpecHelper.*;
 
 /**
@@ -68,25 +68,16 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
         }
     }
 
-    private String buildPackageName(Element rootElement) {
-        final String elementQualifiedName = rootElement.asType().toString();
-        Assert.notNull(elementQualifiedName, "elementQualifiedName must be not null");
-        int lastIndexOf = elementQualifiedName.lastIndexOf(".");
-        String packageName = "bpmn.metadata";
-        if (lastIndexOf > 0)
-            packageName = elementQualifiedName.substring(0, lastIndexOf) + "." + packageName;
-        Assert.notNull(packageName, "packageName must be not null");
-        return packageName;
-    }
 
     private void generateMetadataConstantSourceFile(String packageName, Resource resource) {
         try {
             BpmnModelInstance bpmnModelInstance = Bpmn.readModelFromFile(resource.getFile());
-            TypeSpec.Builder classSpec = TypeSpec.classBuilder(bpmnModelInstance.getDefinitions().getId())
+            TypeSpec.Builder classSpec = TypeSpec.classBuilder(buildClassName(resource))
                     .addModifiers(Modifier.PUBLIC);
             TypeSpec.Builder idsClassSpec = innerClassSpec("Ids");
             TypeSpec.Builder variableKeysClassSpec = innerClassSpec("VariableKeys");
 
+            collectsByProcess(bpmnModelInstance.getModelElementsByType(Process.class));
             collectsByNode(bpmnModelInstance.getModelElementsByType(Event.class));
             collectsByNode(bpmnModelInstance.getModelElementsByType(Task.class));
             collectsByFLow(bpmnModelInstance.getModelElementsByType(SequenceFlow.class));
@@ -98,10 +89,17 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
             classSpec.addType(idsClassSpec.build());
             classSpec.addType(variableKeysClassSpec.build());
             JavaFile javaFile = builder(packageName, classSpec.build()).build();
-            javaFile.writeTo(new File("build"));
+            javaFile.writeTo(new File(JavaSourceFileHelper.getDefaultPath()));
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+
+    private void collectsByProcess(Collection<Process> elements) {
+        elements.forEach(node -> {
+            idVariableKeysMap.get(IDS).add(node.getId());
+        });
     }
 
 
