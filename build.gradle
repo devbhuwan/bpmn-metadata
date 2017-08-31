@@ -50,36 +50,30 @@ subprojects {
     compileJava {
         options.encoding = "UTF-8"
     }
-
-
-    sourceSets {
-        test {
-            java.srcDirs = ["src/test/java", "src/test/groovy"]
-        }
-    }
+    
 
     dependencies {
         compile([
-                "$appLibs.lombok",
-                "$appLibs.commonLang3",
-                "$appLibs.groovyAll",
-                "$appLibs.guava",
-                "$appLibs.immutableValue",
-                "$appLibs.jackson",
-                "$appLibs.slf4j",
-                "$appLibs.h2"
+//                "$appLibs.lombok",
+//                "$appLibs.commonLang3",
+//                "$appLibs.groovyAll",
+//                "$appLibs.guava",
+//                "$appLibs.immutableValue",
+//                "$appLibs.jackson",
+//                "$appLibs.slf4j",
+//                "$appLibs.h2"
         ])
 
         apt([
-                "$appLibs.immutableValue",
-                "$appLibs.lombok"
+//                "$appLibs.immutableValue",
+//                "$appLibs.lombok"
         ])
 
         testCompile([
                 "$appLibs.junit",
                 "$appLibs.assertj",
-                "$appLibs.spockCore",
-                "$appLibs.mutabilitydetector"
+//                "$appLibs.spockCore",
+//                "$appLibs.mutabilitydetector"
         ])
     }
 
