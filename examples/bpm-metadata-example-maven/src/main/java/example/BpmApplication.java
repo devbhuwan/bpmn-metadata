@@ -8,4 +8,7 @@ import io.github.devbhuwan.bpm.metadata.core.annotations.EnableBpmnMetadataConst
 @EnableBpmnMetadataConstantGenerator
 public class BpmApplication {
 
+    public static void main(String[] args) {
+
+    }
 }
