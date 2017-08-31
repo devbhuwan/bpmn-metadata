@@ -6,6 +6,8 @@ import com.squareup.javapoet.TypeSpec;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.Event;
+import org.camunda.bpm.model.bpmn.instance.FlowNode;
+import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 import org.camunda.bpm.model.bpmn.instance.Task;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -18,12 +20,10 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
-import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.MetadataSpecHelper.idSpec;
-import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.MetadataSpecHelper.innerClassSpec;
+import static com.squareup.javapoet.JavaFile.builder;
+import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.MetadataSpecHelper.*;
 
 /**
  * <p> </p>
@@ -37,7 +37,16 @@ import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.Metad
 public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProcessor {
 
 
+    private static final String IDS = "IDS";
+    private static final String VARIABLE_KEYS = "VARIABLE_KEYS";
     private final PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+
+    private final Map<String, Set<String>> idVariableKeysMap = new HashMap<>();
+
+    public EnableBpmnMetadataConstantGeneratorProcessor() {
+        idVariableKeysMap.put(IDS, new TreeSet<>());
+        idVariableKeysMap.put(VARIABLE_KEYS, new TreeSet<>());
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -73,36 +82,42 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
     private void generateMetadataConstantSourceFile(String packageName, Resource resource) {
         try {
             BpmnModelInstance bpmnModelInstance = Bpmn.readModelFromFile(resource.getFile());
-
-            TypeSpec.Builder sourceSpecBuilder = TypeSpec.classBuilder(bpmnModelInstance.getDefinitions().getId())
+            TypeSpec.Builder classSpec = TypeSpec.classBuilder(bpmnModelInstance.getDefinitions().getId())
                     .addModifiers(Modifier.PUBLIC);
-            appendEventNotationSourceSpec(bpmnModelInstance, sourceSpecBuilder);
-            appendTaskNotationSourceSpec(bpmnModelInstance, sourceSpecBuilder);
-            JavaFile javaFile = JavaFile.builder(packageName, sourceSpecBuilder.build())
-                    .build();
+            TypeSpec.Builder idsClassSpec = innerClassSpec("Ids");
+            TypeSpec.Builder variableKeysClassSpec = innerClassSpec("VariableKeys");
+
+            collectsByNode(bpmnModelInstance.getModelElementsByType(Event.class));
+            collectsByNode(bpmnModelInstance.getModelElementsByType(Task.class));
+            collectsByFLow(bpmnModelInstance.getModelElementsByType(SequenceFlow.class));
+
+            idVariableKeysMap.get(IDS)
+                    .forEach(key -> idsClassSpec.addField(fieldSpec(key)));
+            idVariableKeysMap.get(VARIABLE_KEYS)
+                    .forEach(key -> variableKeysClassSpec.addField(fieldSpec(key)));
+            classSpec.addType(idsClassSpec.build());
+            classSpec.addType(variableKeysClassSpec.build());
+            JavaFile javaFile = builder(packageName, classSpec.build()).build();
             javaFile.writeTo(new File("build"));
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    private void appendEventNotationSourceSpec(BpmnModelInstance bpmnModelInstance, TypeSpec.Builder sourceSpecBuilder) {
-        TypeSpec.Builder eventSourceSpecBuilder = innerClassSpec("Event");
 
-        Collection<Event> elementsByType = bpmnModelInstance.getModelElementsByType(Event.class);
-
-        elementsByType.iterator().forEachRemaining(event -> {
-            eventSourceSpecBuilder.addField(idSpec(event));
+    private void collectsByNode(Collection<? extends FlowNode> elements) {
+        elements.forEach(node -> {
+            idVariableKeysMap.get(IDS).add(node.getId());
+            idVariableKeysMap.get(VARIABLE_KEYS).addAll(variableKeys(node));
         });
-        sourceSpecBuilder.addType(eventSourceSpecBuilder.build());
     }
 
-    private void appendTaskNotationSourceSpec(BpmnModelInstance bpmnModelInstance, TypeSpec.Builder sourceSpecBuilder) {
-        TypeSpec.Builder eventSourceSpecBuilder = innerClassSpec("Task");
-        bpmnModelInstance.getModelElementsByType(Task.class).iterator().forEachRemaining(task -> {
-            eventSourceSpecBuilder.addField(idSpec(task));
+    private void collectsByFLow(Collection<SequenceFlow> elements) {
+        elements.forEach(node -> {
+            idVariableKeysMap.get(IDS).add(node.getId());
+            idVariableKeysMap.get(VARIABLE_KEYS).addAll(variableKeys(node.getSource()));
+            idVariableKeysMap.get(VARIABLE_KEYS).addAll(variableKeys(node.getTarget()));
         });
-        sourceSpecBuilder.addType(eventSourceSpecBuilder.build());
     }
 
 
