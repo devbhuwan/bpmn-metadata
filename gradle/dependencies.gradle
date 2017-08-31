@@ -28,7 +28,8 @@ appLibs += [
         immutableValue                  : "org.immutables:value:$immutableVersion",
         annotationProcessorTestingJunit4: "name.falgout.jeffrey.testing:annotation-processor-testing-junit4:$annotationProcessorTestingJunit4Version",
         autoService : "com.google.auto.service:auto-service:$autoServiceVersion",
-        javapoet : "com.squareup:javapoet:$javapoetVersion"
+        javapoet : "com.squareup:javapoet:$javapoetVersion",
+        camundaBpmnModel : "org.camunda.bpm.model:camunda-bpmn-model:$camundaBpmnModelVersion"
 ]
 
 appPlugins += [

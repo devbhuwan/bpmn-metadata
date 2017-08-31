@@ -4,7 +4,8 @@ dependencies {
             "$appLibs.javapoet",
             project(":bpmn-metadata-core"),
             "org.springframework:spring-core",
-            "commons-logging:commons-logging"
+            "commons-logging:commons-logging",
+            "$appLibs.camundaBpmnModel",
     ])
     testCompile([
             "$appLibs.annotationProcessorTestingJunit4"
