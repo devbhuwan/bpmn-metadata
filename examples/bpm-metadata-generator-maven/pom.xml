@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.devbhuwan</groupId>
-    <artifactId>bpm-metadata-generator</artifactId>
+    <artifactId>bpm-metadata-generator-maven</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -30,7 +30,6 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <compilerArgs>
-                        <arg>-verbose</arg>
                         <arg>-XprintRounds</arg>
                         <arg>-XprintProcessorInfo</arg>
                         <arg>-Xlint</arg>

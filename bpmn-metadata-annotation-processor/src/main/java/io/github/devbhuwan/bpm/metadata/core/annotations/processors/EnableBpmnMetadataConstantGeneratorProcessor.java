@@ -49,8 +49,10 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        System.out.printf("EnableBpmnMetadataConstantGeneratorProcessor->Processing....START\n");
         this.processImpl(annotations, roundEnv);
-        return false;
+        System.out.printf("EnableBpmnMetadataConstantGeneratorProcessor->Processing....END\n");
+        return true;
     }
 
     private void processImpl(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

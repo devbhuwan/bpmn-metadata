@@ -1,0 +1,11 @@
+dependencies {
+
+    compile([
+            project(":bpmn-metadata-annotation-processor")
+    ])
+
+    apt([
+            project(":bpmn-metadata-annotation-processor")
+    ])
+
+}

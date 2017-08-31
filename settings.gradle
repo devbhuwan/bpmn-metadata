@@ -1,3 +1,5 @@
 rootProject.name = 'bpmn-metadata'
 include 'bpmn-metadata-annotation-processor'
+include 'examples:bpm-metadata-example-gradle'
+findProject(':examples:bpm-metadata-example-gradle')?.name = 'bpm-metadata-example-gradle'
 
