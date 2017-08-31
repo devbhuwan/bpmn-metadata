@@ -2,9 +2,8 @@ dependencies {
     compile([
             "$appLibs.autoService",
             "$appLibs.javapoet",
-            project(":bpmn-metadata-core"),
-            "org.springframework:spring-core",
-            "commons-logging:commons-logging",
+            "org.springframework:spring-core:4.3.8.RELEASE",
+            "commons-logging:commons-logging:1.2",
             "$appLibs.camundaBpmnModel",
     ])
     testCompile([

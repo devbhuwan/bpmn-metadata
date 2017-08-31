@@ -26,7 +26,6 @@ import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.
 import static io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.MetadataSpecHelper.*;
 
 /**
- * <p> </p>
  *
  * @author Bhuwan Prasad Upadhyay
  */

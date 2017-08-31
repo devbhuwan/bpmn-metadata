@@ -7,7 +7,6 @@ import org.springframework.util.StringUtils;
 import javax.lang.model.element.Element;
 
 /**
- * <p> </p>
  *
  * @author Bhuwan Prasad Upadhyay
  */
