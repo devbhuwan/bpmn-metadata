@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Throwables;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
+import io.github.devbhuwan.bpm.metadata.core.annotations.EnableBpmnMetadataConstantGenerator;
 import io.github.devbhuwan.bpm.metadata.core.annotations.processors.util.JavaSourceFileHelper;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -57,10 +58,10 @@ public class EnableBpmnMetadataConstantGeneratorProcessor extends AbstractProces
 
     private void processImpl(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
-            Iterator<? extends Element> iterator = roundEnv.getRootElements().iterator();
+            Iterator<? extends Element> iterator = roundEnv.getElementsAnnotatedWith(EnableBpmnMetadataConstantGenerator.class).iterator();
             if (iterator.hasNext()) {
-                Element rootElement = iterator.next();
-                final String packageName = buildPackageName(rootElement);
+                Element element = iterator.next();
+                final String packageName = buildPackageName(element);
                 for (Resource resource : resourcePatternResolver.getResources(JavaSourceFileHelper.getDefaultLocation()))
                     this.generateMetadataConstantSourceFile(packageName, resource);
             }

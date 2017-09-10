@@ -37,7 +37,7 @@ public class JavaSourceFileHelper {
         String underScoreFilename = filename.replaceAll("\\s+", "_");
         StringBuilder javaFileName = new StringBuilder();
         for (String word : underScoreFilename.split("_")) {
-            javaFileName.append(StringUtils.capitalize(word));
+            javaFileName.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase());
         }
         return javaFileName.toString();
     }
